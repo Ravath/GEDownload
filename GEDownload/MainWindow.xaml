@@ -1,0 +1,47 @@
+﻿<Window x:Class="GEDownload.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GEDownload"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Url"
+                   Grid.Column="0" Grid.Row="0"/>
+            <TextBox x:Name="xUrlPath"
+                   Grid.Column="1" Grid.Row="0"
+                   GotMouseCapture="xUrlPath_GotFocus"/>
+            <TextBlock Text="Dossier"
+                   Grid.Column="0" Grid.Row="1"/>
+            <TextBox x:Name="xDocPath"
+                   Grid.Column="1" Grid.Row="1"/>
+            <Button Grid.Row="2" Grid.ColumnSpan="2" x:Name="xAddButton" Content="Add" Click="xAddButton_Click"/>
+        </Grid>
+        <ScrollViewer Grid.Row="1">
+            <ListView x:Name="xListAttente"/>
+        </ScrollViewer>
+        <ScrollViewer Grid.Row="2">
+                <TextBlock x:Name="xConsole" ><Run Text="Program launched."/><LineBreak/><Run/><LineBreak/><Run/></TextBlock>
+        </ScrollViewer>
+        <StackPanel Grid.Row="3" Orientation="Horizontal">
+            <CheckBox IsChecked="True" Click="CheckBox_Checked">Force Duplicates</CheckBox>
+        </StackPanel>
+    </Grid>
+</Window>
