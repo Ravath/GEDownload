@@ -30,6 +30,7 @@ namespace GEDownload {
 		private object _queueLock = new object();
 		private object _consoleLock = new object();
 		private bool forceDuplicates = true;
+		private int _imgFailed = 0;
 		#endregion
 
 		#region Properties
@@ -56,7 +57,7 @@ namespace GEDownload {
 		} 
 		#endregion
 
-		#region BackgroundWorker
+		#region BackgroundWorker_galleryDownload
 		/// <summary>
 		/// Classe d'arguments à passer au BackgroundWorker
 		/// </summary>
@@ -65,11 +66,18 @@ namespace GEDownload {
 			public string Url { get; set; }
 		}
 		private void Bgw_ProgressChanged( object sender, ProgressChangedEventArgs e ) {
-			string titre = e.UserState as string;
-			if(e.ProgressPercentage == 1)
-				Report(string.Format("Download of {0} has started", titre));
-			else if(e.ProgressPercentage == 2)
-				Report(string.Format("Download of {0} has ended", titre));
+			string message = e.UserState as string;
+			if (e.ProgressPercentage == 1)
+				Report(string.Format("Download of {0} has started", message));
+			else if (e.ProgressPercentage == 2)
+				Report(string.Format("Download of {0} has ended", message));
+			else if (e.ProgressPercentage == -1)
+			{
+				Report(string.Format("Download of img {0} has failed", message));
+				_imgFailed++;
+			}
+			else if (e.ProgressPercentage == -2)
+				Report(string.Format("Exception occured: {0}", message));
 			xListAttente.ItemsSource = ListeAttente;//maj la liste
 		}
 
@@ -79,7 +87,8 @@ namespace GEDownload {
 			} else if(e.Error != null) {
 				Report("Ended with error:" + e.Error.Message);
 			} else {
-				Report("Ended without fail.");
+				Report(string.Format("Ended normaly ({0} image failed).", _imgFailed));
+				_imgFailed = 0;
 			}
 			xListAttente.ItemsSource = ListeAttente;//maj la liste
 		}
@@ -130,8 +139,35 @@ namespace GEDownload {
 					gTitre = gallerie.Titre;
 					dossier = CreateDirectory(gTitre, argDoss);
 					((BackgroundWorker)sender).ReportProgress(1, gTitre);
+
+					List<Task> imgDownloads = new List<Task>();
 					foreach(PageImage im in gallerie.GetImages())
-						im.TelechargerImage(dossier + im.NomImage, forceDuplicates);
+					{
+						// download each image with a separated task
+						Task t = Task.Run(()=>
+						{
+							bool imgDownloaded = false;
+							try
+							{
+								imgDownloaded = im.TelechargerImage(dossier + im.NomImage, forceDuplicates);
+							}
+							catch (Exception ex)
+							{
+								((BackgroundWorker)sender).ReportProgress(-2, ex.Message);
+							}
+							if (!imgDownloaded)
+							{
+								((BackgroundWorker)sender).ReportProgress(-1, im.NomImage);
+							}
+						});
+						imgDownloads.Add(t);
+					}
+
+					// Wait end of gallery downloading
+					foreach (var task in imgDownloads)
+					{
+						task.Wait();
+					}
 				}
 				else {
 					// Commencer téléchargemnet de la gallerie à partir de l'image trouvée
@@ -183,10 +219,6 @@ namespace GEDownload {
 				outPath += "/";
 			return outPath;
 		}
-		#endregion
-
-		#region BackgroundWorker_imageDownload
-
 		#endregion
 
 		#region Evenements IHM

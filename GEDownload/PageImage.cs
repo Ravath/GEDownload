@@ -52,7 +52,9 @@ namespace GEDownload {
 
 		public bool TelechargerImage( string outPath, bool forceDuplicates) {
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(UriImage);
-			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
 			// Check that the remote file was found. The ContentType
 			// check is performed since a request for a non-existent
@@ -81,12 +83,14 @@ namespace GEDownload {
 				// if the remote file was found, download it
 				using(Stream inputStream = response.GetResponseStream())
 				using(Stream outputStream = File.OpenWrite(destination)) {
+					inputStream.ReadTimeout = (int)1E4;
 					byte[] buffer = new byte[4096];
 					int bytesRead;
-					do {
+					do
+					{
 						bytesRead = inputStream.Read(buffer, 0, buffer.Length);
 						outputStream.Write(buffer, 0, bytesRead);
-					} while(bytesRead != 0);
+					} while (bytesRead != 0);
 				}
 				return true;
 			} else { return false; }
