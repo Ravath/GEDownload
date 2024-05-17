@@ -1,21 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using HtmlAgilityPack;
+using WebBrowser = System.Windows.Forms.WebBrowser;
 
 namespace GEDownload {
 	public class Page {
 		private static HtmlWeb _loader = new HtmlAgilityPack.HtmlWeb();
 
 		public string Url { get; private set; }
-		public HtmlDocument Dom{ get; private set; }
+		public HtmlAgilityPack.HtmlDocument Dom { get; private set; }
 
 		public Page(string url) {
 			Url = url;
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 			Dom = _loader.Load(url);
 		}
+
 		/// <summary>
 		/// 
 		/// </summary>

@@ -111,7 +111,7 @@ namespace GEDownload {
 				if (argUrl.StartsWith("https://e-hentai.org/")) {
 					Page p = new Page(CheckInPath(argUrl));
 					if(p.Dom.DocumentNode.Descendants().Where(nd => nd.GetAttributeValue("class", "") == "sni").Count() > 0)
-						image = new PageImageGEHentai(CheckInPath(argUrl));
+                        image = new PageImageGEHentai(CheckInPath(argUrl));
 					else
 						gallerie = new PageGallerieGEHentai(CheckInPath(argUrl));
 				} else if(argUrl.StartsWith("https://nhentai.net")) {
@@ -119,13 +119,29 @@ namespace GEDownload {
 				}
 				else if (argUrl.StartsWith("https://www.pixiv.net")) {
 					gallerie = new PageGalleriePixiv(CheckInPath(argUrl));
-				}
-				else if (argUrl.StartsWith("https://www.japscan.co"))
+                }
+                else if (argUrl.StartsWith("https://www.japscan.co"))
 				{
 					if (argUrl.Contains("lecture-en-ligne"))
 						image = new PageImageJapscan(CheckInPath(argUrl));
 					else
 						gallerie = new PageGallerieJapscan(CheckInPath(argUrl));
+                }
+                else if (argUrl.Contains("pictoa.com"))
+                {
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    Page p = new Page(CheckInPath(argUrl));
+                    if (p.Dom.GetElementbyId("next") != null)
+                        image = new PageImagePictoa(CheckInPath(argUrl));
+                    else
+                        gallerie = new PageGalleriePictoa(CheckInPath(argUrl));
+				}
+				else if (argUrl.Contains("comics.8muses.com"))
+				{
+					if (argUrl.Contains("picture"))
+						image = new PageImage8Muse(CheckInPath(argUrl));
+					else
+						gallerie = new PageGallerie8Muse(CheckInPath(argUrl));
 				}
 				else {
 					throw new WebException("Domaine inconnu.");
@@ -161,7 +177,7 @@ namespace GEDownload {
 							}
 						});
 						imgDownloads.Add(t);
-					}
+                    }
 
 					// Wait end of gallery downloading
 					foreach (var task in imgDownloads)

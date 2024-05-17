@@ -12,9 +12,9 @@ namespace GEDownload {
 		#region members
 		private string _uri = null;
 		private string _nom = null;
-		#endregion
+        #endregion
 
-		#region Properties
+        #region Properties
 		public bool IsLastPage { get { return NombreTotal == Numero; } }
 		public int Numero { get { return NumeroImage(); } }
 		public int NombreTotal { get { return NombreImages(); } }
@@ -96,7 +96,7 @@ namespace GEDownload {
 			} else { return false; }
 		}
 
-		public IEnumerable<PageImage> GetImages() {
+		public virtual IEnumerable<PageImage> GetImages() {
 			PageImage page = this;
 			do {
 				yield return page;
